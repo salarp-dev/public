@@ -16,19 +16,19 @@ QBCore.Functions.CreateCallback('qb-meterrobbery:server:canRob', function(source
                         canRob = true
                     end)
                 else
-                    TriggerClientEvent('QBCore:Notify', src, Locales['en']['cooldown_active'], 'error')
+                    TriggerClientEvent('QBCore:Notify', src, Locales['lt']['cooldown_active'], 'error')
                     cb(false)
                 end
             else
-                TriggerClientEvent('QBCore:Notify', src, Locales['en']['missing_item'], 'error')
+                TriggerClientEvent('QBCore:Notify', src, Locales['lt']['missing_item'], 'error')
                 cb(false)
             end
         else
-            TriggerClientEvent('QBCore:Notify', src, Locales['en']['meter_robbed'], 'error')
+            TriggerClientEvent('QBCore:Notify', src, Locales['lt']['meter_robbed'], 'error')
             cb(false)
         end
     else
-        TriggerClientEvent('QBCore:Notify', src, Locales['en']['not_enough_cops'], 'error')
+        TriggerClientEvent('QBCore:Notify', src, Locales['lt']['not_enough_cops'], 'error')
         cb(false)
     end
 end)
@@ -43,16 +43,19 @@ AddEventHandler('qb-meterrobbery:server:setCooldown', function(meter)
         Player.Functions.AddItem('coin', amount)
         TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['coin'], 'add', amount)
 
-        Config.RobbedMeters[meter] = true
+        if Config.RobbedMeters[meter] == true then
+            SetTimeout(Config.MeterCooldown * 60000, function()
+                Config.RobbedMeters[meter] = nil
+                canRob = true
+            end)
+            canRob = false
+        else
+            Config.RobbedMeters[meter] = true
+            canRob = false
+        end
 
-        SetTimeout(Config.MeterCooldown * 60000, function()
-            Config.RobbedMeters[meter] = nil
-            canRob = true
-        end)
-
-        canRob = false
     else
-        TriggerClientEvent('QBCore:Notify', src, Locales['en']['cooldown_active'], 'error')
+        TriggerClientEvent('QBCore:Notify', src, Locales['lt']['cooldown_active'], 'error')
     end
 end)
 
