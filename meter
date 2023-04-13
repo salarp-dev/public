@@ -56,9 +56,13 @@ AddEventHandler('qb-meterrobbery:server:setCooldown', function(meter)
         end
 
     else
-        TriggerClientEvent('QBCore:Notify', src, Locales['lt']['cooldown_active'], 'error')
+        if not Config.RobbedMeters[meter] then
+            TriggerClientEvent('QBCore:Notify', src, Locales['lt']['cooldown_active'], 'error')
+            Config.RobbedMeters[meter] = true
+        end
     end
 end)
+
 RegisterServerEvent('qb-meterrobbery:server:success')
 AddEventHandler('qb-meterrobbery:server:success', function()
     local src = source
