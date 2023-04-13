@@ -34,32 +34,27 @@ QBCore.Functions.CreateCallback('qb-meterrobbery:server:canRob', function(source
 end)
 
 RegisterServerEvent('qb-meterrobbery:server:setCooldown')
-AddEventHandler('qb-meterrobbery:server:setCooldown', function(meter)
-    local src = source
+AddEventHandler('qb-meterrobbery:server:setCooldown', function(meter, src)
     local Player = QBCore.Functions.GetPlayer(src)
     local amount = math.random(Config.MinReward, Config.MaxReward)
 
-    if canRob then
-        Player.Functions.AddItem('coin', amount)
-        TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['coin'], 'add', amount)
+    Player.Functions.AddItem('coin', amount)
+    TriggerClientEvent('inventory:client:ItemBox', src, QBCore.Shared.Items['coin'], 'add', amount)
 
-        if Config.RobbedMeters[meter] == true then
-            SetTimeout(Config.MeterCooldown * 60000, function()
-                Config.RobbedMeters[meter] = nil
-                canRob = true
-            end)
-            canRob = false
-        else
-            Config.RobbedMeters[meter] = true
-            canRob = false
-            TriggerClientEvent('QBCore:Notify', src, Locales['lt']['robbery_success'], 'success')
-        end
-
+    if Config.RobbedMeters[meter] == true then
+        TriggerClientEvent('QBCore:Notify', src, Locales['lt']['meter_robbed'], 'error')
     else
-        if not Config.RobbedMeters[meter] then
-            TriggerClientEvent('QBCore:Notify', src, Locales['lt']['cooldown_active'], 'error')
-            Config.RobbedMeters[meter] = true
-        end
+        Config.RobbedMeters[meter] = true
+        TriggerClientEvent('qb-meterrobbery:client:robberyInProgress', src)
+        SetTimeout(Config.RobberyCooldown * 1000, function()
+            Config.RobbedMeters[meter] = nil
+            canRob[src] = true
+            cooldowns[src] = os.time() + Config.MeterCooldown * 60
+            SetTimeout(Config.MeterCooldown * 60000, function()
+                cooldowns[src] = nil
+            end)
+        end)
+        TriggerClientEvent('QBCore:Notify', src, Locales['lt']['robbery_success'], 'success')
     end
 end)
 
